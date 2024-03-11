@@ -1,18 +1,22 @@
-﻿using CA.DTOs;
+﻿
+using Fintech.Domain.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
-    public class Finance : AccountBase
+    public class Finance
     {
-        public Type? Income { get; set; }
-        public Type? Remittance { get; set; }
-        public Type? Asset { get; set; }
-        public Type? Salary { get; set; }
+        [Key]
+        public int FinanceId { get; set; }
+        public string? Income { get; set; }
+        public string? Remittance { get; set; }
+        public string? Asset { get; set; }
+        public string? Salary { get; set; }
 
         public int CodeId { get; set; }
         public Code? code { get; set; }

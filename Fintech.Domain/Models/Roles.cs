@@ -1,14 +1,18 @@
-﻿using CA.DTOs;
+﻿
+using Fintech.Domain.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
-    public class Roles : AccountBase
+    public class Roles 
     {
+        [Key]
+        public int RoleId { get; set; }
         public string? RoleName { get; set; }
     }
 }

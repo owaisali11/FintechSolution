@@ -1,14 +1,13 @@
-﻿using CA.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Fintech.Domain.Dtos;
+using System.ComponentModel.DataAnnotations;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
-    public class Dashboard : AccountBase
+    public class Dashboard 
     {
+        [Key]
+        public int DashboardId { get; set; }
         public string? Eframe { get; set; }
         public DateTime Date { get; set; }
         public string? Description { get; set; }

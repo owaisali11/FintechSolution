@@ -1,14 +1,18 @@
-﻿using CA.DTOs;
+﻿
+using Fintech.Domain.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
-    public class Fact : AccountBase
+    public class Fact 
     {
+        [Key]
+        public int FactId { get; set; }
         public string? Name { get; set; }    
 
     }

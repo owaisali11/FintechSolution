@@ -1,14 +1,12 @@
-﻿using CA.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Fintech.Domain.Dtos;
+using System.ComponentModel.DataAnnotations;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
-    public class ApplicationUser : AccountBase
+    public class ApplicationUser 
     {
+        [Key]
+        public int UserId { get; set; }
         public string? Name { get; set; }
         public string? Address { get; set; }
         public string? Email { get; set; }

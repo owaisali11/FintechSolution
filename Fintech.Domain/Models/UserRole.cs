@@ -1,11 +1,11 @@
-﻿using CA.DTOs;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CA.Models
+namespace Fintech.Domain.Models
 {
     public class UserRole 
     {
