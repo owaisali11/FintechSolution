@@ -19,9 +19,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IFaqRepository, FaqRepository>();
-
+builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 // Register Services
 builder.Services.AddScoped<IFaqService, FaqServices>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

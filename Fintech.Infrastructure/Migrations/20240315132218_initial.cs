@@ -20,6 +20,7 @@ namespace Fintech.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Organization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Field = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },

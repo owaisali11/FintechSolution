@@ -45,6 +45,9 @@ namespace Fintech.Infrastructure.Migrations
                     b.Property<string>("Organization")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("UserId");
 
                     b.ToTable("ApplicationUser");
