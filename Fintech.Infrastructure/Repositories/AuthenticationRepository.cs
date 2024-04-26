@@ -3,10 +3,16 @@ using Fintech.Domain.Dtos;
 using Fintech.Domain.Models;
 using Fintech.Domain.Responses;
 using Fintech.Infrastructure.Data;
+using Fintech.Infrastructure.Helper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,9 +21,11 @@ namespace Fintech.Infrastructure.Repositories
     public class AuthenticationRepository : IAuthenticationRepository
     {
         private readonly ApplicationDbContext _context;
-        public AuthenticationRepository(ApplicationDbContext context)
+        private readonly IOptions<JwtSection> options;
+        public AuthenticationRepository(ApplicationDbContext context, IOptions<JwtSection> config)
         {
             _context = context;
+            options = config;
         }
         public async Task<Response> Register(Register user)
         {
@@ -29,9 +37,9 @@ namespace Fintech.Infrastructure.Repositories
                     Message= "Model is null"
                 };
             }
-            var checkedUser = FindByEmail(user.EmailAddress!);
+            var checkedUser = await FindByEmail(user.EmailAddress!);
 
-            if(checkedUser != null)
+            if(checkedUser != null )
             {
                 return new Response
                 {
@@ -40,7 +48,7 @@ namespace Fintech.Infrastructure.Repositories
                 };
             }
             // save user 
-            var applicationUser = new ApplicationUser
+            var applicationUser = new User
             {
                 Name = user.Name,
                 Email = user.EmailAddress,
@@ -66,7 +74,7 @@ namespace Fintech.Infrastructure.Repositories
                     Message = "Account Successfully Created",
                 };
             }
-            var checkedUserRole = _context.Roles.FirstOrDefaultAsync(x => x.RoleName == "User");
+            var checkedUserRole = await _context.Roles.FirstOrDefaultAsync(x => x.RoleName == "User");
             if(checkedUserRole is null)
             {
                 var createUserRole = new Roles()
@@ -78,21 +86,95 @@ namespace Fintech.Infrastructure.Repositories
 
                await AddToDatabase(new UserRole() { RoleId = createUserRole.RoleId, UserId = applicationUser.UserId});
             }
-            await AddToDatabase(new UserRole() { RoleId = checkedUserRole.Id, UserId = applicationUser.UserId });
+            await AddToDatabase(new UserRole() { RoleId = checkedUserRole.RoleId, UserId = applicationUser.UserId });
             return new Response
             {
                 Status = true,
                 Message = "Account Successfully Created"
             };
-           
-
             
         }
-        private async Task<ApplicationUser> FindByEmail(string email)
+       
+        public async Task<LoginResponse> SignInAsync(Login loginModel)
         {
-            var user = await _context.ApplicationUser.FirstOrDefaultAsync(x=>x.Email.ToLower() == email.ToLower());
-            return user;
+            if(loginModel == null)
+            {
+                return new LoginResponse
+                {
+                    Status = false,
+                    Message = "Model is empty"
+                };
+            }
+            var user = await FindByEmail(loginModel.Email);
+
+            if(user is null)
+            {
+                return new LoginResponse
+                {
+                    Status= false,
+                    Message = "User Not Found",
+                };
+            }
+            if (!BCrypt.Net.BCrypt.Verify(loginModel.Password, user.Password))
+            {
+                return new LoginResponse
+                {
+                    Status = false,
+                    Message = "Incorrect Email or Password"
+                };
+            }
+            var getUserRole = await GetUserRole(user.UserId);
+            if(getUserRole == null)
+            {
+                return new LoginResponse
+                {
+                    Status = false,
+                    Message = "User Role not found"
+                };
+            }
+            var getRoleName = await GetUserRoleName(getUserRole.RoleId);
+            if(getRoleName == null)
+            {
+                return new LoginResponse
+                {
+                    Status = false,
+                    Message = "Role Not Found"
+                };
+            }
+            string jwtToken = GenerateToken(user, getRoleName.RoleName!);
+            string refereshToken = GenerateRefereshToken();
+            return new LoginResponse { Status = true, Message = "Login Successfully", Token = jwtToken, RefereshToken = refereshToken };
         }
+        public string GenerateToken(User user, string role)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var userClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.Name!),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var token = new JwtSecurityToken
+            (
+                claims: userClaims,
+            notBefore: null,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials,
+                audience: options.Value.Audience
+            );
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            return tokenHandler.WriteToken(token);
+        }
+        private async Task<UserRole> GetUserRole(int Id) => await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == Id);
+        private async Task<Roles> GetUserRoleName(int RoleId) => await _context.Roles.FirstOrDefaultAsync(x => x.RoleId == RoleId);
+        private async Task<User> FindByEmail(string email) => await _context.ApplicationUser.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
+        private static string GenerateRefereshToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
         private async Task<T> AddToDatabase<T>(T model)
         {
             var result = _context.Add(model!);

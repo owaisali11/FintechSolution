@@ -16,7 +16,7 @@ namespace Fintech.Infrastructure.Data
         {
             
         }
-        public DbSet<ApplicationUser> ApplicationUser { get; set; }
+        public DbSet<User> ApplicationUser { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Code> Codes { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -40,7 +40,7 @@ namespace Fintech.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserRole>().HasNoKey();
+            //modelBuilder.Entity<UserRole>().HasNoKey();
           
            
            // modelBuilder.Entity<CustomAttributeData>().HasNoKey();

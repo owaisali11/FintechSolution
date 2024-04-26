@@ -21,5 +21,10 @@ namespace Fintech.Application.Services.Implementation
         {
             return _authenticationRepository.Register(registerModel);
         }
+
+        public Task<LoginResponse> SignInAsync(Login loginModel)
+        {
+            return _authenticationRepository.SignInAsync(loginModel);
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Fintech.Application.Repositories
     public interface IAuthenticationRepository
     {
         Task<Response> Register(Register registerModel); 
+        Task <LoginResponse> SignInAsync(Login loginModel);
     }
 }

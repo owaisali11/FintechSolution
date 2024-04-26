@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fintech.Domain.Models
 {
-    public class ApplicationUser 
+    public class User 
     {
         [Key]
         public int UserId { get; set; }
