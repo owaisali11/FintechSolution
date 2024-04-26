@@ -21,15 +21,16 @@ namespace Fintech.Infrastructure.Repositories
             var password = config["Neo4j:Password"];
             _driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password));
         }
-        public async Task<Response> RunQueryAsync(string cypherQuery)
+        public async Task<string> RunQueryAsync(string cypherQuery)
         {
             if (String.IsNullOrWhiteSpace(cypherQuery))
             {
-                return new Response
+                /*return new Response
                 {
                     Message = "Kindly provide cypher query",
                     Status = false,
-                };
+                };*/
+                return null;
             }
             await using var session = _driver.AsyncSession();
             var greeting = await session.WriteTransactionAsync(
@@ -43,11 +44,12 @@ namespace Fintech.Infrastructure.Repositories
                     return record[0].As<string>();
                 });
 
-            return new Response
+            /*return new Response
             {
                 Message = greeting,
                 Status = true,
-            };
+            };*/
+            return greeting;
         }
     }
 }

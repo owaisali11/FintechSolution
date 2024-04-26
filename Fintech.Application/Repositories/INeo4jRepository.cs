@@ -9,6 +9,6 @@ namespace Fintech.Application.Repositories
 {
     public interface INeo4jRepository
     {
-        public Task<Response> RunQueryAsync(string cypherQuery);
+        public Task<string> RunQueryAsync(string cypherQuery);
     }
 }
