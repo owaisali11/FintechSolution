@@ -18,12 +18,16 @@ namespace Fintech.Server.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> SignUp(Register model)
         {
-            if (model == null)
+            if (ModelState.IsValid)
             {
-                return BadRequest("Model is empty");
+                var result = await _authenticationService.Register(model);
+                if (!result.Status)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
             }
-            var result = await _authenticationService.Register(model);
-            return Ok(result);
+            return BadRequest(new Response { Message = "Some properties are not valid.", Status = false });
         }
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync(Login loginModel)

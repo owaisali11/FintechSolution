@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Fintech.Application.Repositories
 {
-    public interface INeo4jRepository
+    public interface INeo4jDemoRepository 
     {
-        public Task<CypherResponse> RunQueryAsync(string cypherQuery);
+        Task<CypherResponse> RunQueryDemoAsync(string fullcypherQuery);
     }
 }

@@ -27,9 +27,12 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 
 builder.Services.Configure<JwtSection>(builder.Configuration.GetSection("JwtSection"));
 
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<INeo4jRepository, Neo4jRepository>();
+builder.Services.AddScoped<INeo4jDemoRepository, Neo4jDemoRepository>();
 builder.Services.AddScoped<IFaqRepository, FaqRepository>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+
 // Register Services
 builder.Services.AddScoped<IFaqService, FaqServices>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

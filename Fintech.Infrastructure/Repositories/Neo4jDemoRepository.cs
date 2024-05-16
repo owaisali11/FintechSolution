@@ -1,5 +1,4 @@
-﻿
-using Fintech.Application.Repositories;
+﻿using Fintech.Application.Repositories;
 using Fintech.Domain.Responses;
 using Microsoft.Extensions.Configuration;
 using Neo4j.Driver;
@@ -11,40 +10,40 @@ using System.Threading.Tasks;
 
 namespace Fintech.Infrastructure.Repositories
 {
-    public class Neo4jRepository : INeo4jRepository
+    public class Neo4jDemoRepository : INeo4jDemoRepository
     {
         private readonly IDriver _driver;
-        public Neo4jRepository(IConfiguration config)
+        public Neo4jDemoRepository(IConfiguration config)
         {
-            var uri = config["Neo4j:Uri"];
-            var username = config["Neo4j:Username"];
-            var password = config["Neo4j:Password"];
+            var uri = config["DemoNeo4j:Uri"];
+            var username = config["DemoNeo4j:Username"];
+            var password = config["DemoNeo4j:Password"];
             _driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password));
         }
-        public async Task<CypherResponse> RunQueryAsync(string fullcypherQuery)
+        public async Task<CypherResponse> RunQueryDemoAsync(string fullcypherQuery)
         {
             if (String.IsNullOrWhiteSpace(fullcypherQuery))
             {
                 return new CypherResponse
                 {
+                    Message = "Kindly provide your cypher query",
                     Status = false,
-                    Message = "Kindly Provide Your Cypher Query"
                 };
+              
             }
             string cypherQuery = GetCypherQueryFromFullQuery(fullcypherQuery);
+
             await using var session = _driver.AsyncSession();
-            
             var greeting = await session.ExecuteWriteAsync(
-                async tx =>
-                {
-                   var result = await tx.RunAsync(cypherQuery);
+                 async tx =>
+                 {
+                     var result = await tx.RunAsync(cypherQuery);
 
-                    var records = await result.ToListAsync();
-                    return records.Select(record =>
-                    record.Keys.ToDictionary(key => key, key => record[key])
-                ).ToList();
-                });
-
+                     var records = await result.ToListAsync();
+                     return records.Select(record =>
+                     record.Keys.ToDictionary(key => key, key => record[key])
+                 ).ToList();
+                 });
             if (greeting == null)
             {
                 return new CypherResponse
@@ -59,7 +58,7 @@ namespace Fintech.Infrastructure.Repositories
                 string detailedResponse = "\n";
                 foreach (var record in greeting)
                 {
-                    detailedResponse += FormatResult(record) + "," + "\n";
+                    detailedResponse += FormatResult(record) +","+ "\n";
                 }
                 string extractedStartingResponsee = ExtractStartingResponse(fullcypherQuery);
                 string resultt = $"{extractedStartingResponsee} {detailedResponse}";
@@ -67,13 +66,13 @@ namespace Fintech.Infrastructure.Repositories
                 {
                     Status = true,
                     Message = "Successful",
-                    Data = resultt
+                    Data = resultt.Trim()
                 };
             }
             else if (greeting.Count == 1)
             {
                 var singleRecord = greeting.First();
-                var singleValue = singleRecord.Values.First(); 
+                var singleValue = singleRecord.Values.First();
                 string extractedStartingResponse = ExtractStartingResponse(fullcypherQuery);
                 string extractedEndingResponse = ExtractEndingResponse(fullcypherQuery);
                 string result = $"{extractedStartingResponse} {singleValue} {extractedEndingResponse}";
@@ -127,7 +126,7 @@ namespace Fintech.Infrastructure.Repositories
             string cleanResponse = System.Text.RegularExpressions.Regex.Replace(fullQuery, @"\{.*?\}", "{}");
             string newResponse = cleanResponse.Trim();
             int startIndex = newResponse.IndexOf("*{}*");
-            if(startIndex == -1)
+            if (startIndex == -1)
             {
                 return null;
             }
@@ -135,24 +134,10 @@ namespace Fintech.Infrastructure.Repositories
             string textAfterPlaceholder = newResponse.Substring(responseStartIndex).Trim();
             return textAfterPlaceholder;
         }
-
-        private string FormatResult(List<Dictionary<string, object>> result)
-        {
-            // Customize this method to format the result as needed
-            if (result == null || result.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            var record = result.First();
-            return string.Join(", ", record.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
-        }
-
         private string FormatResult(Dictionary<string, object> record)
         {
             // Customize this method to format the result as needed
             return string.Join(", ", record.Select(kvp => $"{kvp.Value}"));
         }
-
     }
 }

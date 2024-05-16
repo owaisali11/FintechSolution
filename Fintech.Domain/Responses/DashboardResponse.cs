@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Fintech.Domain.Responses
 {
-    public class GeneralResponse<T>
+    public class DashboardResponse
     {
-        public bool status { get; set; }
-        public string? Message { get; set; }
-        public List<T>? Data { get; set; }
+        public Boolean Status { get; set; }
+        public string? Message {  get; set; }
+        public List<Dashboard>? dashboards { get; set; }
     }
 }
